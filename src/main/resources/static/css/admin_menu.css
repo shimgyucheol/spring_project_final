@@ -1,0 +1,21 @@
+@charset "UTF-8";
+			body{background-color:#FDFCF0;}
+			ul {list-style:none; margin:0;padding:0; clear: both;width: 100px;height: 100%}
+			/*li {margin: 0 0 0 0; padding: 0 0 0 0; border : 0; float: left; clear: both;} */
+			li{text-align: center; height: 100%}
+			li:hover{cursor: pointer; 
+			    -webkit-transform: scale(1.2,1.2);
+			    -moz-transform: scale(1.2,1.2);
+			    -o-transform: scale(1.2,1.2);
+			    -ms-transform: scale(1.2,1.2);
+			    transform: scale(1.2,1.2);
+			 }
+			a:link {text-decoration: none; color: black;}
+			a:visited {text-decoration: none; color: black;}
+			a:active {text-decoration: none; color: black;}
+			a:hover {text-decoration: none; color: black;}
+			#memberDel:checked ~ .admin_del_div {display: block;}
+			#admin_menu_div{margin: 0 auto; width: 200px; height: 200px; background-color: black;} 
+			#iframe{display: inline-block; margin-bottom: 100px; float: left; margin-left: 30px; }
+			#top_banner{clear: both; width: 100px; height: 100%; float: left;}
+			#iframe_admin{border: 0px;}

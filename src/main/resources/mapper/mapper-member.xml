@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+   
+<mapper namespace="com.site.mapper.MemberMapper">
+
+ 	<!-- 로그인 -->
+ 	<select id="login" resultType="com.site.dto.MemberDto">
+ 		select * from PROJECT_MEMBER where id=#{id} and pw=#{pw}
+ 	</select>
+	
+	<!-- 멤버리스트 -->
+	<select id="memberList" resultType="com.site.dto.MemberDto">
+ 		<![CDATA[select * from PROJECT_MEMBER]]>
+ 	</select>
+ 	
+ 	<!-- 중복확인 -->
+ 	<select parameterType="String" id="idCheck" resultType="com.site.dto.MemberDto">
+ 		select * from PROJECT_MEMBER where id=#{id}
+ 	</select>
+
+ 	<!-- 아이디 찾기 -->
+ 	<select id="idSearch" resultType="com.site.dto.MemberDto">
+ 		select * from PROJECT_MEMBER where name=#{name} and email=#{email}
+ 	</select>
+
+ 	<!-- 비밀번호 찾기 -->
+ 	<select id="pwSearch" resultType="com.site.dto.MemberDto">
+ 		select * from PROJECT_MEMBER where id=#{id} and email=#{email}
+ 	</select>
+	
+	<!-- 신고명단 -->
+    <select id="dec_member_list" resultType="com.site.dto.DeclarationMember">
+       <![CDATA[select * from member_dec order by dec_number]]>
+    </select>
+	
+ 	<!-- 회원가입 -->
+ 	<insert id="join">
+ 		 <![CDATA[
+ 		INSERT INTO project_member VALUES
+		(#{id},#{pw},#{name},#{email},#{birthday},#{gender},#{post},#{addr1},#{addr2})
+		]]>
+ 	</insert>
+ 	
+ 	<!-- 신고 -->
+   <insert id="dec_member">
+        <![CDATA[
+       INSERT INTO member_dec VALUES
+      (#{dec_id},#{dec_reason},dec_seq.nextval,#{id})
+      ]]>
+    </insert>
+
+ 	<!-- 비밀번호 변경 -->
+ 	<update id="pwChange">
+ 		<![CDATA[
+ 		UPDATE project_member SET pw = #{pw} WHERE id=#{id}
+ 		]]>
+ 	</update>
+ 	
+ 	<!-- 회원정보 수정 -->
+ 	<update id="memberModify">
+ 		<![CDATA[
+ 		UPDATE project_member 
+ 		SET pw=#{pw},name=#{name},post=#{post},addr1=#{addr1},addr2=#{addr2}
+ 		WHERE id=#{id}
+ 		]]>
+ 	</update>
+ 	
+ 	<!-- 멤버 삭제 -->
+ 	<delete id="memberDel">
+ 		DELETE from project_member where id = #{id}
+ 	</delete>
+ 	
+ 	<!-- 회원 탈퇴 -->
+ 	<delete id="memberQuit">
+ 		DELETE from project_member where id = #{id}
+ 	</delete>
+ 	 <!-- 예매 현황 -->
+    <select id="getmypage" resultType="com.site.dto.MypageDto">
+       <![CDATA[
+       select 
+       rid, name, u.id , mname, reservedate, seat 
+       from project_member u , reserveinfo r ,screeninfo s, movie m 
+       where r.sid= s.sid and s.mid= m.mid and r.id = u.id and u.id=#{id}
+       ]]>
+    </select>
+ </mapper>

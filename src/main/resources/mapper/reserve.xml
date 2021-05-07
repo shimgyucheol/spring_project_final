@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="com.site.dao.ReserveDao">
+  	<insert id= "add">
+  		<![CDATA[
+  			insert into reserveinfo (rid,seat, reservetimestamp, reservedate, sid ,id) values(
+  			reserve_seq.nextval,#{seat},systimestamp,sysdate,#{sid},'aaaa')
+  			
+  		]]>
+  		
+  	</insert>
+  	<select id="getseat" resultType="Reserve">
+  	<![CDATA[
+  		select LISTAGG(seat,',') WITHIN GROUP(order by sid) as seat, sid from reserveinfo where sid=#{sid} GROUP BY sid 
+  		]]>
+  	</select>
+  	
+  	
+  	<select id="movieinfo" resultType="Rtotal">
+  	<![CDATA[
+  		select m.mid,m.mname, m.age,m.openingdate, m.grade, m.mrate, s.sid, s.starttime, s.remainseat, s.hallseat , t.tid, t.locB, t.hall from movie m ,screeninfo s , theater t where m.mid=s.mid and t.tid=s.sid ]]> 
+<!--   		<choose> -->
+<!--   			<when test="mid ==0"> -->
+<!--   			and m.mid=2 -->
+<!--   			</when> -->
+<!--   			<when test="mid !=0"> -->
+<!--   			and m.mid=1 -->
+<!--   			</when> -->
+<!--   		</choose> -->
+  		<if test="mid != 0 ">
+  			and m.mid=#{mid}	
+  		</if>
+  		<if test="starttime != null"> 
+  			and s.starttime between to_char(sysdate,'yy/MM/dd hh:mm') and to_char((sysdate+1), 'yy/mm/dd')
+		</if> 
+		<if test="locB !=null">
+			t.locb like #{locB}
+		</if>
+  	</select>
+  	<select id="getMovieList" resultType="MovieDto">
+  
+  		select * from movie order by mrate desc
+		
+  	</select>
+  	<select id="movielist" resultType="MovieDto">
+  		select * from movie order by mrate desc
+  	</select>
+  	
+  	<update id="remain">
+  		UPDATE screeninfo SET remainseat = #{remainseat} where sid = #{sid}
+  	</update>
+  	<select id="getAllinfo" resultType="Rtotal">
+  	select m.mid, t.tid, s.sid, mname, locb, hall, age, remainseat, starttime, playtime, hallseat, poster,(starttime+(playtime/24/60)) as endtime from movie m, theater t, screeninfo s where m.mid=s.mid and s.tid = t.tid and s.sid = #{sid}
+  	
+  	</select>
+  	<select id="getMovieCheck" resultType="Rtotal">
+  		select distinct mname, age, mrate, grade, openingdate,poster from movie m,screeninfo s, theater t where s.mid=m.mid and s.tid = t.tid and  t.locb like #{locB}
+  	</select>
+  	<select id="infotoday" resultType="Rtotal">
+  		<![CDATA[ select mname, starttime, (starttime+(playtime/24/60)) as endtime, remainseat, hallseat , hall ,s.sid, m.mid ,m.age from movie m, screeninfo s ,theater t where m.mid=s.mid and s.tid =t.tid  and (starttime between to_date(#{playdate},'YY/MM/DD hh24:mi') and (to_date(#{playedate}, 'YY/MM/DD')+1) ) and locB = #{locB} and mname= #{mname} order by starttime 
+  		]]>
+  	</select>
+ </mapper>

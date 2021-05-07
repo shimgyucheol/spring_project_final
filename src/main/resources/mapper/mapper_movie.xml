@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.site.mapper.MovieMapper">
+	
+	<!-- 좋아요구현 -->
+	<select id="goodclickcheck" resultType="Integer">
+		select checkdata from goodcheck where mid=#{mid} and cid=#{cid} and id=#{id}
+	</select>
+	<update id="goodclickminus">
+		update mcommentboard set goodnumber=goodnumber-1 where cid=#{cid}
+	</update>
+	<delete id="goodcheckdelete">
+		delete from goodcheck where cid=#{cid}
+	</delete>
+	<update id="goodclickplus">
+		update mcommentboard set goodnumber=goodnumber+1 where cid=#{cid}
+	</update>
+	<insert id="goodcheckinsert">
+		insert into goodcheck values(#{mid},#{cid},#{id},1)
+	</insert>
+	
+	<!-- 좋아요구현끝 -->
+	
+	
+	<!-- 댓글관리시작 -->
+	<update id="commentupdatemapper">
+		update mcommentboard set txtcomment=#{txtcomment},
+		cdate=sysdate where cid=#{cid} 
+	</update>
+	
+	
+	<insert id="insertcomment">
+		<selectKey resultType="int" keyProperty="cid" order="BEFORE">
+			select c_seq.nextval from dual
+		</selectKey>
+		insert into mcommentboard values(
+		#{mid},#{id},#{cid},#{grade},#{txtcomment},sysdate,0)
+
+	</insert>
+	<select id="selectcommentone" resultType="com.site.dto.CommentDto">
+		select * from mcommentboard where cid=#{cid}
+	</select>
+	<select id="selectmcommentlist" resultType="com.site.dto.CommentDto">
+		select a.mid,a.id,a.cid,a.grade,a.txtcomment,a.cdate,a.goodnumber,b.checkdata
+		from mcommentboard a left join goodcheck b on a.cid=b.cid and b.id=#{id}
+        where a.mid=#{mid} order by a.cid desc
+	</select>
+	<delete id="commentdeletemapper">
+		delete from mcommentboard where cid=#{cid}
+	</delete>
+	<select id="mcommentlistcountmapper" resultType="int">
+		select count(*) from mcommentboard where mid=#{mid}
+	</select>
+	<select id="mcommentlistgrademapper" resultType="int">
+		select grade from mcommentboard where mid=#{mid}
+	</select>
+	<!-- 댓글관리끝 -->
+
+	<!-- 영화관계자관리 -->
+	<update id="modifymoviepersonmapper">
+		update allimg set
+		name=#{dto.name},img=#{dto.img},director=#{dto.director}
+		where name = #{savename}
+	</update>
+	<select id="moviepersonmodifyviewmapper"
+		resultType="com.site.dto.AllimgDto">
+		select * from allimg where pid = #{pid}
+	</select>
+	<select id="moviepersonallmapper"
+		resultType="com.site.dto.AllimgDto">
+		select * from allimg order by pid desc
+	</select>
+	<select id="moviepersonalldirectormapper"
+		resultType="com.site.dto.AllimgDto">
+		select * from allimg where director like '%감독%' order by pid desc
+	</select>
+	<select id="moviepersonnotdirectormapper"
+		resultType="com.site.dto.AllimgDto">
+		select * from allimg where director is null or director !='감독' order by pid desc
+	</select>
+	<delete id="moviepersondeletemapper">
+		delete from allimg where pid=#{pid}
+	</delete>
+	<select id="moviepersonnamemapper" resultType="com.site.dto.AllimgDto">
+		select * from allimg where pid=#{pid}
+	</select>
+
+	<!-- 영화관계자관리끝 -->
+
+
+	<!-- 영화수정부분 시작 -->
+	<update id="updatemoviepreferencemapper">
+		<![CDATA[
+		update preference set man=#{man},woman=#{woman},
+  		age10=#{age10},age20=#{age20},age30=#{age30},
+  		age40=#{age40} where mid=#{mid}
+		]]>
+	</update>
+
+	<update id="updatemovieimgmapper">
+		<![CDATA[
+		update movieimg set swiperimg1=#{swiperimg1},swiperimg2=#{swiperimg2},
+  		swiperimg3=#{swiperimg3},trailer1=#{trailer1},trailer2=#{trailer2},
+  		trailer3=#{trailer3},poster1=#{poster1},poster2=#{poster2},
+  		poster3=#{poster3},poster4=#{poster4},trailervideo1=#{trailervideo1},
+  		trailervideo2=#{trailervideo2},trailervideo3=#{trailervideo3} where mid=#{mid}
+		]]>
+	</update>
+
+	<update id="updatemoviemapper">
+		<![CDATA[
+		update movie set mname=#{mname},genre=#{genre},
+  		grade=#{grade},info=#{info},director=#{director},
+  		actor=#{actor},poster=#{poster},mrate=#{mrate},
+  		attendance=#{attendance},age=#{age},playtime=#{playtime},
+  		openingdate=#{openingdate2},endingdate=#{endingdate2},
+  		dsavepid=#{dsavepid},asavepid=#{asavepid}
+  		where mid=#{mid}
+		]]>
+	</update>
+	<!-- 영화수정부분 끝 -->
+
+	<!-- 영화삭제메소드 -->
+	<delete id="moviedeleteimg">
+		delete from movieimg where mid=#{mid}
+	</delete>
+	<delete id="moviedeletepreference">
+		delete from preference where mid=#{mid}
+	</delete>
+	<delete id="moviedeletemapper">
+		delete from movie where mid=#{mid}
+	</delete>
+	<!-- 영화삭제메소드 끝 -->
+
+	<!-- 영화삭제폼에서 영화유무체크 -->
+	<select id="moviedeleteinfoAll"
+		resultType="com.site.dto.MovieDto">
+	<![CDATA[
+		select * from movie order by mid
+	]]>
+	</select>
+	<!-- 영화삭제폼에서 영화유무체크 끝 -->
+
+	<!-- 메인에서 가져오는 데이터 -->
+	<select id="movielist" resultType="com.site.dto.MovieDto">
+	<![CDATA[
+		select * from movie order by mid asc
+	]]>
+	</select>
+	<select id="moviecount" resultType="int">
+	<![CDATA[
+		select count(*) from movie
+	]]>
+	</select>
+
+	<!-- 메인에서 가져오는 데이터 끝 -->
+	<!-- 영화관계자등록 시작 -->
+	<insert id="insertmoviepersonmapper">
+		insert into allimg values(
+		#{dto.name},#{dto.img},#{dto.director},p_seq.nextval)
+	</insert>
+	<!-- 영화관계자등록 끝 -->
+
+	<!-- 영화등록메소드 모음 시작 -->
+	<insert id="insertmoviemapper">
+		insert into movie values(
+		#{mname},#{genre},#{grade},#{info},#{director},#{actor},#{poster},#{mrate},#{attendance},#{age},movie_seq.nextval,#{playtime},#{openingdate2},#{endingdate2},#{dsavepid},#{asavepid})
+	</insert>
+
+	<insert id="insertmovieimg">
+		<selectKey resultType="int" keyProperty="mid" order="BEFORE">
+			select
+			mid from movie where mname=#{mname}
+		</selectKey>
+		insert into movieimg values(
+		#{mid},#{dto.swiperimg1},#{dto.swiperimg2},#{dto.swiperimg3},#{dto.trailer1},#{dto.trailer2},#{dto.trailer3},#{dto.poster1},#{dto.poster2},#{dto.poster3},#{dto.poster4},
+		#{dto.trailervideo1},#{dto.trailervideo2},#{dto.trailervideo3})
+	</insert>
+
+	<insert id="insertmoviepreferencemapper">
+		<selectKey resultType="int" keyProperty="mid" order="BEFORE">
+			select
+			mid from movie where mname=#{mname}
+		</selectKey>
+		insert into preference values(
+		#{mid},#{dto.man},#{dto.woman},#{dto.age10},#{dto.age20},#{dto.age30},#{dto.age40})
+	</insert>
+
+
+
+	<!-- 영화등록메소드 모음 끝 -->
+
+
+
+	<!-- 영화정보데이터 mid에 따라서 가져옴 -->
+	<select id="selectmovieinfo" resultType="com.site.dto.MovieDto">
+	<![CDATA[
+		select * from movie where mid=#{mid}
+	]]>
+	</select>
+	<select id="selectmovieimg"
+		resultType="com.site.dto.MovieimgDto">
+	<![CDATA[
+		select * from movieimg where mid=#{mid}
+	]]>
+	</select>
+	<select id="selectallimg" resultType="com.site.dto.AllimgDto">
+	<![CDATA[
+		select * from allimg where pid=#{pid}
+	]]>
+	</select>
+	<select id="selectpreference"
+		resultType="com.site.dto.PreferenceDto">
+	<![CDATA[
+		select * from preference where mid=#{mid}
+	]]>
+	</select>
+
+
+	<!-- 영화정보데이터 mid에 따라서 가져옴 끝 -->
+
+	<!-- 리스트갯수 가져오기 -->
+	<select id="listCount" resultType="int">
+		select count(*) from movie
+	</select>
+	<select id="listCountTitle" resultType="int">
+		select count(*) from
+		movie where MNAME like '%'||#{search}||'%'
+	</select>
+	<select id="listCountDirector" resultType="int">
+		select count(*) from
+		movie where DIRECTOR like '%'||#{search}||'%'
+	</select>
+	<select id="listCountDirectorhgenre" resultType="int">
+		select count(*)
+		from movie where DIRECTOR like '%'||#{search}||'%' and genre
+		like
+		'%'||#{hgenre}||'%'
+	</select>
+	<select id="listCountDirectordgenre" resultType="int">
+		select count(*)
+		from movie where DIRECTOR like '%'||#{search}||'%' and genre
+		like
+		'%'||#{dgenre}||'%'
+	</select>
+	<select id="listCountDirectorhgenredgenre" resultType="int">
+		select
+		count(*) from movie where DIRECTOR like '%'||#{search}||'%' and (genre
+		like '%'||#{dgenre}||'%' or genre like '%'||#{hgenre}||'%')
+	</select>
+	<select id="listCountSearchAll" resultType="int">
+		select count(*) from
+		movie where MNAME like '%'||#{search}||'%' or DIRECTOR
+		like
+		'%'||#{search}||'%' or ACTOR like '%'||#{search}||'%'
+	</select>
+	<!-- 수정중 -->
+	<select id="listCountSearchAllhgenredgenre" resultType="int">
+		select
+		count(*) from movie where (MNAME like '%'||#{search}||'%' or DIRECTOR
+		like '%'||#{search}||'%' or ACTOR like '%'||#{search}||'%')
+		and (genre
+		like '%'||#{hgenre}||'%' or genre like '%'||#{dgenre}||'%')
+	</select>
+	<select id="listCountSearchAllhgenre" resultType="int">
+		select count(*)
+		from movie where (MNAME like '%'||#{search}||'%' or DIRECTOR
+		like
+		'%'||#{search}||'%' or ACTOR like '%'||#{search}||'%')
+		and genre like
+		'%'||#{hgenre}||'%'
+	</select>
+	<select id="listCountSearchAlldgenre" resultType="int">
+		select count(*)
+		from movie where (MNAME like '%'||#{search}||'%' or DIRECTOR
+		like
+		'%'||#{search}||'%' or ACTOR like '%'||#{search}||'%')
+		and genre like
+		'%'||#{dgenre}||'%'
+	</select>
+	<!-- 수정중 끝 -->
+	<select id="listCountActor" resultType="int">
+		select count(*) from
+		movie where ACTOR like '%'||#{search}||'%'
+	</select>
+
+
+
+	<!-- 리스트갯수 가져오기 끝 -->
+
+
+	<!-- 영화검색 전체리스트 -->
+	<select id="selectsearchdata" resultType="com.site.dto.MovieDto">
+	<![CDATA[
+		select * from 
+		(select rownum rnum,a.* from 
+		(select * from movie order by mid desc) a)
+		where rnum>=#{startrow} and rnum<=#{endrow}
+	]]>
+	</select>
+	<select id="selectsearchdatatitle"
+		resultType="com.site.dto.MovieDto">
+	<![CDATA[
+		select * from 
+		(select rownum rnum,a.* from 
+		(select * from movie where mname like '%'||#{search}||'%' order by mid desc) a)
+		where rnum>=#{startrow} and rnum<=#{endrow}
+	]]>
+	</select>
+	<select id="selectsearchdatadirector"
+		resultType="com.site.dto.MovieDto">
+	<![CDATA[
+		select * from 
+		(select rownum rnum,a.* from 
+		(select * from movie where director like '%'||#{search}||'%' order by mid desc) a)
+		where rnum>=#{startrow} and rnum<=#{endrow}
+	]]>
+	</select>
+	<select id="selectsearchdatadirectorhgenre"
+		resultType="com.site.dto.MovieDto">
+	<![CDATA[
+		select * from 
+		(select rownum rnum,a.* from 
+		(select * from movie where director like '%'||#{search}||'%' and genre like '%'||#{hgenre}||'%' order by mid desc) a)
+		where rnum>=#{startrow} and rnum<=#{endrow}
+	
+	
+	]]>
+	</select>
+	<select id="selectsearchdatadirectordgenre"
+		resultType="com.site.dto.MovieDto">
+	<![CDATA[
+		select * from 
+		(select rownum rnum,a.* from 
+		(select * from movie where director like '%'||#{search}||'%' and genre like '%'||#{dgenre}||'%' order by mid desc) a)
+		where rnum>=#{startrow} and rnum<=#{endrow}
+	
+	]]>
+	</select>
+	<select id="selectsearchdatadirectorhgenredgenre"
+		resultType="com.site.dto.MovieDto">
+	<![CDATA[
+		select * from 
+		(select rownum rnum,a.* from
+		(select * from 
+		(select * from movie where director like '%'||#{search}||'%' order by mid desc)
+		where genre like '%'||#{dgenre}||'%' or genre like '%'||#{hgenre}||'%') a)
+		where rnum>=#{startrow} and rnum<=#{endrow}
+	]]>
+	</select>
+	<select id="selectsearchdataAll"
+		resultType="com.site.dto.MovieDto">
+	<![CDATA[
+		select * from 
+		(select rownum rnum,a.* from 
+		(select * from movie where mname like '%'||#{search}||'%' or director like '%'||#{search}||'%' or actor like '%'||#{search}||'%' order by mid desc) a)
+		where rnum>=#{startrow} and rnum<=#{endrow}
+	
+	]]>
+	</select>
+	<select id="selectsearchdataAllhgenredgenre"
+		resultType="com.site.dto.MovieDto">
+	<![CDATA[
+		select * from 
+		(select rownum rnum,a.* from
+		(select * from 
+		(select * from movie where mname like '%'||#{search}||'%' or director like '%'||#{search}||'%' or actor like '%'||#{search}||'%' order by mid desc)
+		where genre like '%'||#{dgenre}||'%' or genre like '%'||#{hgenre}||'%') a)
+		where rnum>=#{startrow} and rnum<=#{endrow}
+	]]>
+	</select>
+	<select id="selectsearchdataAllhgenre"
+		resultType="com.site.dto.MovieDto">
+	<![CDATA[
+		select * from 
+		(select rownum rnum,a.* from
+		(select * from 
+		(select * from movie where mname like '%'||#{search}||'%' or director like '%'||#{search}||'%' or actor like '%'||#{search}||'%' order by mid desc)
+		where genre like '%'||#{hgenre}||'%') a)
+		where rnum>=#{startrow} and rnum<=#{endrow}
+	
+		
+	]]>
+	</select>
+	<select id="selectsearchdataAlldgenre"
+		resultType="com.site.dto.MovieDto">
+	<![CDATA[
+		select * from 
+		(select rownum rnum,a.* from
+		(select * from 
+		(select * from movie where mname like '%'||#{search}||'%' or director like '%'||#{search}||'%' or actor like '%'||#{search}||'%' order by mid desc)
+		where genre like '%'||#{dgenre}||'%') a)
+		where rnum>=#{startrow} and rnum<=#{endrow}
+		
+		
+	
+	]]>
+	</select>
+
+	<select id="selectsearchdataActor"
+		resultType="com.site.dto.MovieDto">
+	<![CDATA[
+		select * from 
+		(select rownum rnum,a.* from 
+		(select * from movie where actor like '%'||#{search}||'%' order by mid desc) a)
+		where rnum>=#{startrow} and rnum<=#{endrow}
+	]]>
+	</select>
+	<!-- 영화검색 전체리스트 끝 -->
+
+
+</mapper>
